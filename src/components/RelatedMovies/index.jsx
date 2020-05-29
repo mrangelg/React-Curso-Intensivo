@@ -37,6 +37,10 @@ const ScoreContainer = styled(Pane)`
   align-content: center;
 `;
 
+const scrollTo = () => {
+  window.location.hash = "#title";
+};
+
 function RelatedMovies({ relatedMovies }) {
   return (
     <>
@@ -45,7 +49,11 @@ function RelatedMovies({ relatedMovies }) {
       </StyledHeading>
       <RelatedMoviesList>
         {relatedMovies.map((movie) => (
-          <RelatedMovie key={movie.id} to={`/movie/${movie.id}`}>
+          <RelatedMovie
+            key={movie.id}
+            to={`/movie/${movie.id}`}
+            onClick={scrollTo}
+          >
             <ImgMovie src={movie.image} alt={movie.name} />
             <ScoreContainer>
               <img src={star} alt="Star icon" width="30%" />{" "}

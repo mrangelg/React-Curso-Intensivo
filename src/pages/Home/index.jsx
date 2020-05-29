@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useContext } from "react";
 import { Pane } from "evergreen-ui";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { TrendingAction } from "./../../redux/actions/movies.actions";
-import background from "./../../assets/images/wonder-woman-portrait.jpg";
+import slugify from "slugify";
+import { MovieContext } from "./../../App";
 import {
   Navbar,
   MovieCategories,
@@ -13,15 +12,21 @@ import {
 } from "./../../components";
 
 const MainContainer = styled(Pane)`
-  width: 100%;
   height: 100%;
   background-color: #000;
-  background-image: linear-gradient(
+  background-image: ${(props) =>
+    props.backgroundImage !== "N/A"
+      ? `linear-gradient(
       to left,
       rgba(0, 0, 0, 1),
       rgba(0, 0, 0, 0.3) 50%
     ),
-    url(${background});
+    url(${props.backgroundImage})`
+      : `linear-gradient(
+      to left,
+      rgba(0, 0, 0, 1),
+      rgba(0, 0, 0, 0.3) 50%
+    )`};
   background-repeat: no-repeat;
   background-size: 100vh;
 `;
@@ -50,15 +55,15 @@ const CategoriesContainer = styled(Pane)`
   }
 `;
 
-function Home({ TRENDING_RESPONSE, TrendingAction }) {
-  useEffect(() => {
-    TrendingAction();
-  }, [TrendingAction]);
+function Home() {
+  const { movie } = useContext(MovieContext);
+
+  console.log("Home page: ", movie);
 
   return (
     <>
-      {TRENDING_RESPONSE.res && (
-        <MainContainer>
+      {movie && (
+        <MainContainer backgroundImage={movie.Poster}>
           <Navbar />
           <BodyContainer>
             <TrendingMovie>
@@ -77,7 +82,7 @@ function Home({ TRENDING_RESPONSE, TrendingAction }) {
                 paddingvalue="0.6rem 0"
                 textShadow="rgb(0,0,0) 0px 0px 40px"
               >
-                {TRENDING_RESPONSE.res.title}
+                {movie.Title}
               </StyledHeading>
               <StyledHeading
                 headingtype="info"
@@ -85,8 +90,7 @@ function Home({ TRENDING_RESPONSE, TrendingAction }) {
                 wordSpacing="0.3125rem"
                 lineHeight="1.5rem"
               >
-                {TRENDING_RESPONSE.res.genres.join(", ")} •{" "}
-                {TRENDING_RESPONSE.res.duration}
+                {movie.Genre} • {movie.Runtime}
               </StyledHeading>
               <StyledButton
                 btntype="primary"
@@ -100,7 +104,10 @@ function Home({ TRENDING_RESPONSE, TrendingAction }) {
                 btntype="secondary"
                 appearance="primary"
                 is={Link}
-                to={`/movie/${TRENDING_RESPONSE.res.id}`}
+                to={`/movie/${slugify(movie.Title, {
+                  lower: true,
+                  strict: true,
+                })}`}
               >
                 More info
               </StyledButton>
@@ -115,8 +122,4 @@ function Home({ TRENDING_RESPONSE, TrendingAction }) {
   );
 }
 
-const mapStateToProps = (state, props) => ({
-  TRENDING_RESPONSE: state.moviesReducers.TrendingResponse,
-});
-
-export default connect(mapStateToProps, { TrendingAction })(Home);
+export default Home;

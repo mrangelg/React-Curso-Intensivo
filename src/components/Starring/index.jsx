@@ -17,6 +17,10 @@ const StarringMovie = styled(Pane)`
   }
 `;
 
+const handleRandomValue = () => {
+  return Math.floor(Math.random() * 30);
+};
+
 function Starring({ starring }) {
   return (
     <>
@@ -25,11 +29,11 @@ function Starring({ starring }) {
       </StyledHeading>
       <StarringMovieList>
         {starring.map((star) => (
-          <StarringMovie key={star.id}>
-            <Avatar src={star.photo} name={star.name} size={100} />
-            <StyledHeading fontSize="0.9rem">{star.name}</StyledHeading>
+          <StarringMovie key={star}>
+            <Avatar src={star} name={star} size={100} />
+            <StyledHeading fontSize="0.9rem">{star}</StyledHeading>
             <StyledHeading fontSize="0.6rem">
-              {star.movies} Movies
+              {handleRandomValue()} Movies
             </StyledHeading>
           </StarringMovie>
         ))}

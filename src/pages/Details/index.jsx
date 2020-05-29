@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import styled from "styled-components";
 import { Pane } from "evergreen-ui";
 import { useParams } from "react-router-dom";
-import { connect } from "react-redux";
-import { MovieDetailsAction } from "./../../redux/actions/movies.actions";
-import background from "./../../assets/images/wonder-woman-landscape.jpg";
 import imageStar from "./../../assets/svg/star-solid.svg";
+import { MovieContext } from "./../../App";
 import {
   Navbar,
   Directed,
@@ -20,20 +18,11 @@ import {
 const MainContainer = styled(Pane)`
   color: #fff;
   background-color: #000;
-  background-image: ${(props) =>
-    props.backgroundImage
-      ? `linear-gradient(
-      to left,
-      rgba(0, 0, 0, 0.1),
-      rgba(0, 0, 0, 1)
-    ),
-    url(${props.backgroundImage})`
-      : `linear-gradient(
-      to left,
-      rgba(0, 0, 0, 0.1),
-      rgba(0, 0, 0, 1)
-    ),
-    url(${background})`};
+  background-image: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 1)
+  );
   background-size: cover;
 `;
 
@@ -67,34 +56,32 @@ const WraperSynopsisContainer = styled(Pane)`
   flex-flow: row wrap;
 `;
 
-function Details({ MOVIE_DETAILS_RESPONSE, MovieDetailsAction }) {
+function Details() {
   let { id } = useParams();
+  const { movie } = useContext(MovieContext);
 
-  useEffect(() => {
-    MovieDetailsAction(id);
-  }, [MovieDetailsAction, id]);
+  console.log("Home page: ", movie);
 
   return (
     <>
-      {MOVIE_DETAILS_RESPONSE.res && (
-        <MainContainer
-          backgroundImage={MOVIE_DETAILS_RESPONSE.res.backgroundImage}
-        >
+      {movie && (
+        <MainContainer>
           <Navbar />
           <BodyContainer>
             <Pane>
               <TitleMovie
+                id="title"
                 headingtype="title"
                 fontSize="3rem"
                 fontWeight="bold"
                 lineHeight="3rem"
                 paddingvalue="0.6rem 0"
               >
-                {MOVIE_DETAILS_RESPONSE.res.title}
+                {movie.Title}
               </TitleMovie>
               <ScoreContainer>
                 <img src={imageStar} alt="Star icon" width="15px" />{" "}
-                <span>{MOVIE_DETAILS_RESPONSE.res.score}</span>
+                <span>{movie.imdbRating}</span>
               </ScoreContainer>
               <StyledHeading
                 headingtype="info"
@@ -102,33 +89,20 @@ function Details({ MOVIE_DETAILS_RESPONSE, MovieDetailsAction }) {
                 wordSpacing="0.3125rem"
                 lineHeight="1.5rem"
               >
-                {MOVIE_DETAILS_RESPONSE.res.genres.join(", ")} •{" "}
-                {MOVIE_DETAILS_RESPONSE.res.duration} •{" "}
-                {MOVIE_DETAILS_RESPONSE.res.year} •{" "}
-                <CategoryContainer>
-                  {MOVIE_DETAILS_RESPONSE.res.category}
-                </CategoryContainer>
+                {movie.Genre} • {movie.Runtime} • {movie.Year} •{" "}
+                <CategoryContainer>{movie.Rated}</CategoryContainer>
               </StyledHeading>
               <StyledButton btntype="primary" appearance="primary">
                 Watch now
               </StyledButton>
-              <StyledButton btntype="secondary" appearance="primary">
-                More info
-              </StyledButton>
             </Pane>
             <WraperSynopsisContainer>
-              <Synopsis synopsis={MOVIE_DETAILS_RESPONSE.res.synopsis} />
+              <Synopsis synopsis={movie.Plot} />
               <Pane>
-                <Directed directors={MOVIE_DETAILS_RESPONSE.res.directors} />
-                <Recommended
-                  recommended={MOVIE_DETAILS_RESPONSE.res.recommended}
-                />
+                <Directed directors={movie.Director.split(",")} />
               </Pane>
             </WraperSynopsisContainer>
-            <Starring starring={MOVIE_DETAILS_RESPONSE.res.starring} />
-            <RelatedMovies
-              relatedMovies={MOVIE_DETAILS_RESPONSE.res.relatedMovies}
-            />
+            <Starring starring={movie.Actors.split(",")} />
           </BodyContainer>
         </MainContainer>
       )}
@@ -136,8 +110,4 @@ function Details({ MOVIE_DETAILS_RESPONSE, MovieDetailsAction }) {
   );
 }
 
-const mapStateToProps = (state, props) => ({
-  MOVIE_DETAILS_RESPONSE: state.movieDetailsReducers.MovieDetailsResponse,
-});
-
-export default connect(mapStateToProps, { MovieDetailsAction })(Details);
+export default Details;
